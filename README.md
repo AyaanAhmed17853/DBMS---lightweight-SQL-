@@ -463,6 +463,7 @@ Smart App Control
 
 If Smart App Control is enforcing a policy, it may block locally
 compiled unsigned executables.
+fix is to turn off smart app control - at your own risk buddy
 
 ------------------------------------------------------------------------
 
