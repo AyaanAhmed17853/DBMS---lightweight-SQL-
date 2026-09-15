@@ -62,6 +62,40 @@ PrepareResult Parser::prepare_statement(const std::string& input, Statement& sta
         return PrepareResult::PREPARE_SUCCESS;
     }
 
+    if (command == "update") {
+        statement.type = StatementType::STATEMENT_UPDATE;
+
+        int id;
+        std::string username, email;
+
+        if (!(iss >> id >> username >> email)) {
+            return PrepareResult::PREPARE_SYNTAX_ERROR;
+        }
+
+        if (id < 0) {
+            return PrepareResult::PREPARE_NEGATIVE_ID;
+        }
+
+        if (username.length() > COLUMN_USERNAME_SIZE) {
+            return PrepareResult::PREPARE_STRING_TOO_LONG;
+        }
+
+        if (email.length() > COLUMN_EMAIL_SIZE) {
+            return PrepareResult::PREPARE_STRING_TOO_LONG;
+        }
+
+        // Reuse row_to_insert to carry the new row values.
+        // The ID remains the key being updated.
+        statement.target_id = id;
+        statement.row_to_insert.id = id;
+        strncpy(statement.row_to_insert.username, username.c_str(), COLUMN_USERNAME_SIZE);
+        statement.row_to_insert.username[COLUMN_USERNAME_SIZE] = '\0';
+        strncpy(statement.row_to_insert.email, email.c_str(), COLUMN_EMAIL_SIZE);
+        statement.row_to_insert.email[COLUMN_EMAIL_SIZE] = '\0';
+
+        return PrepareResult::PREPARE_SUCCESS;
+    }
+
     if (command == "delete") {
         statement.type = StatementType::STATEMENT_DELETE;
         std::string target;

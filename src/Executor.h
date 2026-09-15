@@ -15,4 +15,5 @@ private:
     static ExecuteResult execute_insert(Statement& statement, Table* table);
     static ExecuteResult execute_select(Statement& statement, Table* table);
     static ExecuteResult execute_delete(Statement& statement, Table* table);
+    static ExecuteResult execute_update(Statement& statement, Table* table);
 };

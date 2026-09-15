@@ -11,6 +11,8 @@ ExecuteResult Executor::execute_statement(Statement& statement, Table* table) {
             return execute_select(statement, table);
         case StatementType::STATEMENT_DELETE:
             return execute_delete(statement, table);
+        case StatementType::STATEMENT_UPDATE:
+            return execute_update(statement, table);
     }
     return ExecuteResult::EXECUTE_SUCCESS;
 }
@@ -89,6 +91,36 @@ ExecuteResult Executor::execute_delete(Statement& statement, Table* table) {
     } else {
         std::cout << "Record not found." << std::endl;
     }
+    delete cursor;
+    return ExecuteResult::EXECUTE_SUCCESS;
+}
+
+ExecuteResult Executor::execute_update(Statement& statement, Table* table) {
+    // UPDATE keeps the existing key in the B+ tree and replaces only the row value.
+    uint32_t key = static_cast<uint32_t>(statement.target_id);
+    Cursor* cursor = table->get_tree()->find(key);
+    void* node = table->get_pager()->get_page(cursor->page_num);
+    uint32_t num_cells = *(table->get_tree()->leaf_node_num_cells(node));
+
+    if (cursor->cell_num >= num_cells) {
+        delete cursor;
+        std::cout << "Record not found." << std::endl;
+        return ExecuteResult::EXECUTE_SUCCESS;
+    }
+
+    uint32_t key_at_index = *table->get_tree()->leaf_node_key(node, cursor->cell_num);
+    if (key_at_index != key) {
+        delete cursor;
+        std::cout << "Record not found." << std::endl;
+        return ExecuteResult::EXECUTE_SUCCESS;
+    }
+
+    // The B+ tree location stays exactly the same because the key/ID is unchanged.
+    // Replace the row bytes stored in the leaf cell.
+    memcpy(table->get_tree()->leaf_node_value(node, cursor->cell_num),
+           &(statement.row_to_insert),
+           ROW_SIZE);
+
     delete cursor;
     return ExecuteResult::EXECUTE_SUCCESS;
 }

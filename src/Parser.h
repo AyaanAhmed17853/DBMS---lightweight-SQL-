@@ -2,7 +2,7 @@
 #include "Table.h"
 #include <string>
 
-enum class StatementType { STATEMENT_INSERT, STATEMENT_SELECT, STATEMENT_DELETE };
+enum class StatementType { STATEMENT_INSERT, STATEMENT_SELECT, STATEMENT_DELETE, STATEMENT_UPDATE };
 
 struct Statement {
     StatementType type;
