@@ -53,7 +53,7 @@ PrepareResult Parser::prepare_statement(const std::string& input, Statement& sta
                     return PrepareResult::PREPARE_NEGATIVE_ID;
                 }
                 statement.target_id = parsed_id;
-            } catch (.. .) {
+            } catch (...) {
                 statement.target_id = -1; // Non-numeric token, treat as select all
             }
         } else {
